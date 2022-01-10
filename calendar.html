@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<head>
+  <style>
+    #calendar_main{
+      border-collapse: collapse;
+    }
+    #calendar_div{
+      width: max-content;
+      margin:40px auto;
+      position: relative;
+    }
+    td {
+      width: 180px;
+      height: 100px;
+      border-bottom: 6px dotted gray;
+      text-align: center;
+      transition: 0.2s;
+      outline: 0px solid #99999999;
+    }
+    td:hover:not(.days) {
+      outline: 5px solid #99999999;
+      background-color: #99999922;
+      cursor: pointer;
+    }
+    .calendar_font {
+      vertical-align: middle;
+      line-height: 90px;
+      font-weight: 900;
+      font-size: 90px;
+    }
+    span {
+      font-family: Tahoma, Geneva, sans-serif;
+    }
+    .days {
+      height: 60px;
+    }
+    .days span {
+      font-size: 20px;
+    }
+    .holiday span {
+      color: red;
+    }
+    .holiday.otherMonth span {
+      color: #00000000;
+      -webkit-text-stroke: 3px red;
+    }
+    .otherMonth span {
+      color: #00000000;
+      -webkit-text-stroke: 3px gray;
+    }
+    #cursor {
+      margin: 2px;
+      width: 180px;
+      height: 100px;
+      outline: 5px dashed red;
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      transition: 0.5s cubic-bezier(.86,0,.07,1);
+    }
+    #clock {
+      width: 100px;
+      height: 100px;
+      border: 1px solid;
+      border-radius: 50px;
+    }
+  </style>
+</head>
+<body>
+<div id="calendar_div">
+  <div id="cursor"></div>
+<table id="calendar_main">
+  <tr>
+    <td class="days"><span>Понедельник</span></td>
+    <td class="days"><span>Вторник</span></td>
+    <td class="days"><span>Среда</span></td>
+    <td class="days"><span>Четверг</span></td>
+    <td class="days"><span>Пятница</span></td>
+    <td class="holiday days"><span>Суббота</span></td>
+    <td class="holiday days"><span>Воскресенье</span></td>
+  </tr>
+<tr>
+  <td id="cell_1"></td>
+  <td id="cell_2"></td>
+  <td id="cell_3"></td>
+  <td id="cell_4"></td>
+  <td id="cell_5"></td>
+  <td id="cell_6" class="holiday"></td>
+  <td id="cell_7" class="holiday"></td>
+</tr>
+<tr>
+  <td id="cell_8"></td>
+  <td id="cell_9"></td>
+  <td id="cell_10"></td>
+  <td id="cell_11"></td>
+  <td id="cell_12"></td>
+  <td id="cell_13" class="holiday"></td>
+  <td id="cell_14" class="holiday"></td>
+</tr>
+<tr>
+  <td id="cell_15"></td>
+  <td id="cell_16"></td>
+  <td id="cell_17"></td>
+  <td id="cell_18"></td>
+  <td id="cell_19"></td>
+  <td id="cell_20" class="holiday"></td>
+  <td id="cell_21" class="holiday"></td>
+</tr>
+<tr>
+  <td id="cell_22"></td>
+  <td id="cell_23"></td>
+  <td id="cell_24"></td>
+  <td id="cell_25"></td>
+  <td id="cell_26"></td>
+  <td id="cell_27" class="holiday"></td>
+  <td id="cell_28" class="holiday"></td>
+</tr>
+<tr>
+  <td id="cell_29"></td>
+  <td id="cell_30"></td>
+  <td id="cell_31"></td>
+  <td id="cell_32"></td>
+  <td id="cell_33"></td>
+  <td id="cell_34" class="holiday"></td>
+  <td id="cell_35" class="holiday"></td>
+</tr>
+<tr>
+  <td id="cell_36"></td>
+  <td id="cell_37"></td>
+  <td id="cell_38"></td>
+  <td id="cell_39"></td>
+  <td id="cell_40"></td>
+  <td id="cell_41" class="holiday"></td>
+  <td id="cell_42" class="holiday"></td>
+</tr>
+</table>
+</div>
+</body>
+<footer>
+  <script>
+    let leftBase = 188;
+    let topBase = 108;
+    let leftPoses = [0, leftBase, leftBase*2, leftBase*3, leftBase*4, leftBase*5, leftBase*6];
+    let topPoses = [0, topBase, topBase*2, topBase*3, topBase*4, topBase*5, topBase*6];
+    let matrix = [0, 1, 2, 3, 4, 5, 6];
+    function div(val, by){
+      return (val - val % by) / by;
+    }
+    drawIntro();
+    function drawIntro(){
+      let txt = [
+      ' SMART ',
+      'TIM ING',
+      '       ',
+      '  B Y  ',
+      'mi6e4ka',
+      ' 20 22 '
+      ];
+      for (let i = 0; i < txt.length; i++){
+        for (let ii = 0; ii < 7; ii++){
+          document.getElementById('cell_'+(i*7+ii+1)).innerHTML = '<span class=\'calendar_font\'>'+txt[i].split('')[ii]+'</span>';
+        }
+      }
+    }
+
+    let date = new Date();
+    date.setDate(1);
+    date = new Date(date.setHours(0,0,0,0));
+    let daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+    let UStoEU = [6,0,1,2,3,4,5];
+    Date.prototype.daysInMonth = function() {
+      return 32 - new Date(this.getFullYear(), this.getMonth(), 32).getDate();
+    };
+    Date.prototype.getEUDay = function() {
+      return UStoEU[this.getDay()];
+    };
+    function dateToCell(num, startDay){
+      return num+startDay;
+    }
+    function cursorToCell(cell, anim){
+      let top = div(cell-1, 7);
+      let left = (cell-top*7)-1;
+      let cursor = document.getElementById('cursor');
+      if (cursor.style.top != topBase*top+68){
+        cursor.style.top = topBase*top+68+'px', 500;
+        if (anim){
+          setTimeout(() => cursor.style.left = leftBase*left+'px', 500);
+        } else {
+          cursor.style.left = leftBase*left+'px';
+        }
+      } else {
+        cursor.style.left = leftBase*left+'px';
+      }
+    }
+    function update(){
+      cursorToCell(dateToCell(new Date().getDate(), date.getEUDay()));
+      dayFormat();
+      document.getElementById('cursor').style.outline = '15px solid red';
+    }
+    setInterval(update, 1000);
+    //dayFormat();
+    cursorToCell(11, false);
+    function dayFormat(){
+      let thisYear = new Date(new Date(0).setYear(new Date().getFullYear()));
+      let preMonth = new Date(thisYear.setMonth(new Date().getMonth()-1)).daysInMonth();
+      let startDay = date.getEUDay();
+      let thisMonth = new Date(thisYear.setMonth(new Date().getMonth())).daysInMonth();
+      console.log(dateToCell(new Date().getDate(), startDay));
+      for (let i = 1; i < startDay+1; i++){
+        document.getElementById('cell_'+i).innerHTML = "<span class='calendar_font'>"+(preMonth-startDay+i)+"</span>";
+        document.getElementById('cell_'+i).className += ' otherMonth';
+      }
+      for (let i = startDay+1; i <= thisMonth+startDay; i++){
+        document.getElementById('cell_'+i).innerHTML = "<span class='calendar_font'>"+(i-startDay)+"</span>";
+      }
+      for (let i = thisMonth+startDay+1; i <= 42; i++){
+        document.getElementById('cell_'+i).innerHTML = "<span class='calendar_font'>"+(i-thisMonth-startDay)+"</span>";
+        document.getElementById('cell_'+i).className += ' otherMonth';
+      }
+    }
+  </script>
+</footer>
